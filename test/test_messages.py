@@ -1,5 +1,5 @@
 import pytest
-from src.utils import validate_message
+from src.utils.utils import validate_message
 
 def test_message_not_empty():
     """
