@@ -44,7 +44,7 @@ def send_message(client_socket, message: str)-> bool:
         validate_message(message)
         client_socket.sendall(message.encode('utf-8'))
         logging.info(f"Mensaje enviado: {message}")
-        return True
+        return "Mensaje recibido" 
 
     except ValueError:
         logging.error("Intento de enviar un mensaje vacío.")

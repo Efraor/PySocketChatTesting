@@ -29,6 +29,7 @@ def start_server():
 
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((HOST, PORT))
         server_socket.listen()
         logging.info(f"Servidor iniciado en {HOST}:{PORT}")
@@ -69,3 +70,7 @@ def broadcast_message(message, sender_socket):
             except Exception as e:
                 logging.error(f"Error al enviar mensaje a un cliente: {e}") 
 
+if __name__ == "__main__":
+    start_server()
+    # Mantener el servidor en ejecución
+    threading.Event().wait()
