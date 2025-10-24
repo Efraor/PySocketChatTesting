@@ -3,11 +3,10 @@ import threading
 from src.utils.message_utils import validate_message
 from src.utils.logger import get_logger
 
-logger = get_logger("Server")
-
 HOST = '127.0.0.1'
 PORT = 5000
 clients = []
+logger = get_logger("Server")
 
 def start_server():
     """Inicia el servidor y espera conexiones."""
@@ -37,6 +36,7 @@ def handle_client(client_socket):
         message = client_socket.recv(1024).decode('utf-8')
         if validate_message(message):
             client_socket.sendall("Mensaje recibido".encode('utf-8'))
+            broadcast_message(message, client_socket)
         client_socket.close()
     except Exception as e:
         logger.warning(f"Error en la comunicación con el cliente: {e}")

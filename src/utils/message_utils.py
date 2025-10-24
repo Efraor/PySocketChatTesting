@@ -1,13 +1,12 @@
-import logging
-
-logging.basicConfig(level=logging.INFO)
+from src.utils.logger import get_logger
+logger = get_logger("Utils")
 
 def validate_message(message):
     """
     Valida que el mensaje no esté vacío y sea una cadena.
     """
     if not message or not message.strip():
-        logging.error("Mensaje vacío o inválido detectado")
+        logger.error("Mensaje vacío o inválido detectado")
         raise ValueError("El mensaje no puede estar vacío y debe ser una cadena.")
-    logging.info("Mensaje validado: "+ message)
+    logger.info("Mensaje validado: "+ message)
     return True
