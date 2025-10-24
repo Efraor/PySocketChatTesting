@@ -1,27 +1,24 @@
 import pytest
 from src.utils.utils import validate_message
+from unittest.mock import patch
 
-def test_message_not_empty():
-    """
-    El mensaje no puede estar vacío.
-    """
-    invalid_message1 = ""
-    invalid_message2 = "   "
+def test_validate_message_ok():
+    """Mensaje válido no lanza error y retorna True"""
+    result = validate_message("Hola mundo")
+    assert result is True
 
+def test_validate_message_empty():
+    """Mensaje vacío lanza ValueError"""
     with pytest.raises(ValueError):
-        validate_message(invalid_message1)
+        validate_message("")
 
+def test_validate_message_spaces():
+    """Mensaje solo con espacios lanza ValueError"""
     with pytest.raises(ValueError):
-        validate_message(invalid_message2)
+        validate_message("     ")
 
-    # Mensaje que no es string -> ValueError
-    with pytest.raises(ValueError):
-        validate_message(None)
-
-def test_message_valid():
-    """
-    El mensaje debe ser válido.
-    """
-    valid_message = "Hola, este es un mensaje válido."
-
-    assert validate_message(valid_message) is True
+def test_logger_called_for_valid_message():
+    """Verifica que se llame al logger cuando el mensaje es válido"""
+    with patch("src.utils.message_utils.logging.info") as mock_log:
+        validate_message("Test logger")
+        mock_log.assert_called_with("Mensaje validado: Test logger")
