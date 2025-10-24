@@ -8,7 +8,7 @@ PORT = 5000
 clients = []
 logger = get_logger("Server")
 
-def start_server():
+def start_server(HOST, PORT):
     """Inicia el servidor y espera conexiones."""
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,7 +31,7 @@ def accept_clients(server_socket):
             client_socket, addr = server_socket.accept()
             clients.append(client_socket)
             logger.info(f"Cliente conectado desde {addr}")
-            th = threading.Thread(target=handle_client, args=(client_socket,), daemon=True).start()  
+            th = threading.Thread(target=handle_client, args=(client_socket, addr), daemon=True)
             th.start()
         except Exception as e:
             logger.error(f"Error aceptando clientes: {e}")
@@ -84,7 +84,7 @@ def broadcast_message(message, sender_socket):
         payload = message.encode('utf-8')
     else:
         payload = message
-    for client in clients:
+    for client in clients.copy():
         if client != sender_socket:
             try:
                  client.sendall(payload)
@@ -98,5 +98,5 @@ def broadcast_message(message, sender_socket):
                     logger.error(f"Error al remover al cliente") 
 
 if __name__ == "__main__":
-    start_server()
+    start_server(HOST,PORT)
     threading.Event().wait()
