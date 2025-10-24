@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from src.server import start_server, accept_clients, handle_client, broadcast_message
+from src.utils import message_utils
 
 def test_server_starts():
     """Server starts without raising exceptions."""
@@ -16,10 +17,10 @@ def test_server_starts():
 def test_handle_client_receives_message():
     """Server handles a single client message correctly."""
     mock_client = MagicMock()
-    mock_client.recv.return_value = b"Hello Server"
+    mock_client.recv.side_effect = [b"Hello Server", b""]
 
-    with patch("src.utils.message_utils.validate_message", return_value=True) as mock_validate:
-        handle_client(mock_client)
+    with patch("src.server.validate_message", return_value=True) as mock_validate:
+        handle_client(mock_client, ("127.0.0.1", 5000))
         mock_validate.assert_called_once_with("Hello Server")
         mock_client.sendall.assert_called_once_with(b"Mensaje recibido")
         mock_client.close.assert_called_once()
