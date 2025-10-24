@@ -32,17 +32,20 @@ def accept_clients(server_socket):
 
 def handle_client(client_socket):
     """Maneja la comunicación con un cliente."""
-    try:
-        message = client_socket.recv(1024).decode('utf-8')
-        if validate_message(message):
-            client_socket.sendall("Mensaje recibido".encode('utf-8'))
-            broadcast_message(message, client_socket)
-        client_socket.close()
-    except Exception as e:
-        logger.warning(f"Error en la comunicación con el cliente: {e}")
-        if client_socket in clients:
-            clients.remove(client_socket)
-        client_socket.close()
+    while True:
+        try:
+            message = client_socket.recv(1024).decode('utf-8')
+            if not message:
+                break # Cliente cerró la conexión
+            if validate_message(message):
+                logger.info(f"Mensaje recibido de un cliente: {message}")
+                broadcast_message(message, client_socket)
+        except Exception as e:
+            logger.warning(f"Error en la comunicación con el cliente: {e}")
+            break
+    if client_socket in clients:
+        clients.remove(client_socket)
+    client_socket.close()
 
 
 def broadcast_message(message, sender_socket):
