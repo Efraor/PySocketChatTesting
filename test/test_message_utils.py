@@ -1,5 +1,6 @@
 import pytest
-from src.utils.utils import validate_message
+from src.utils.message_utils import validate_message
+from src.utils import message_utils
 from unittest.mock import patch
 
 def test_validate_message_ok():
@@ -18,7 +19,7 @@ def test_validate_message_spaces():
         validate_message("     ")
 
 def test_logger_called_for_valid_message():
-    """Verifica que se llame al logger cuando el mensaje es válido"""
-    with patch("src.utils.message_utils.logging.info") as mock_log:
-        validate_message("Test logger")
-        mock_log.assert_called_with("Mensaje validado: Test logger")
+    """Verifica que se llame al logger cuando el mensaje es válido."""
+    with patch.object(message_utils.logger, 'info') as mock_log:
+        message_utils.validate_message("Hola")
+        mock_log.assert_called_once_with("Mensaje validado: Hola")
