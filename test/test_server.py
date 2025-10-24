@@ -1,15 +1,43 @@
-"""
-Pruebas unitarias para el servidor
-- Inicialización
-- Conexión de clientes
-- Recepción de mensajes
-"""
-
 import pytest
-from src.server import start_server  # Todavía no implementado
+from unittest.mock import patch, MagicMock
+from src.server import start_server, accept_clients, handle_client, broadcast_message
 
 def test_server_starts():
-    """
-    Verifica que el servidor puede iniciar sin errores.
-    """
-    assert start_server() is True
+    """Server starts without raising exceptions."""
+    with patch("socket.socket") as mock_socket:
+        mock_instance = MagicMock()
+        mock_socket.return_value = mock_instance
+
+        result = start_server()
+        assert result is True
+        mock_instance.bind.assert_called_once()
+        mock_instance.listen.assert_called_once()
+
+def test_handle_client_receives_message():
+    """Server handles a single client message correctly."""
+    mock_client = MagicMock()
+    mock_client.recv.return_value = b"Hello Server"
+
+    with patch("src.utils.message_utils.validate_message", return_value=True) as mock_validate:
+        handle_client(mock_client)
+        mock_validate.assert_called_once_with("Hello Server")
+        mock_client.sendall.assert_called_once_with(b"Mensaje recibido")
+        mock_client.close.assert_called_once()
+
+def test_broadcast_message():
+    """Server sends a message to all clients except sender."""
+    sender = MagicMock()
+    client1 = MagicMock()
+    client2 = MagicMock()
+
+    from src import server
+    server.clients = [sender, client1, client2]
+
+    broadcast_message("Broadcast Test", sender)
+
+    client1.sendall.assert_called_once_with(b"Broadcast Test")
+    client2.sendall.assert_called_once_with(b"Broadcast Test")
+    sender.sendall.assert_not_called()
+
+    # Cleanup
+    server.clients = []
