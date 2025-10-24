@@ -16,18 +16,22 @@ def connect_to_server(host, port):
         return None
 
 def send_message(client_socket, message: str)-> bool:
-    """Envía un mensaje al servidor."""
+    """Valida y envía el mensaje; retorna la respuesta decodificada o False en error."""
+    if client_socket is None:
+        logger.error("Socket inexistente")
+        return False
     try:
         validate_message(message)
-        client_socket.sendall(message.encode('utf-8'))
-        logger.info(f"Mensaje enviado: {message}")
-        response = client_socket.recv(1024).decode('utf-8')
-        logger.info(f"Respuesta del servidor: {response}")
-        return response
     except ValueError:
         logger.error("Intento de enviar un mensaje vacío.")
         return False
+    try:
+        client_socket.sendall(message.encode('utf-8'))
+        resp = client_socket.recv(4096)
+        if resp is None:
+            return None
+        return resp.decode('utf-8')
     except Exception as e:
-        logger.error(f"Error al enviar el mensaje: {e}")
+        logger.error(f"Error al enviar/recibir mensaje: {e}")
         return False
 
